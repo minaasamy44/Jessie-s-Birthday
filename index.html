@@ -16,101 +16,166 @@
   }
 
   html, body {
-    width: 100%;
-    min-height: 100%;
-    overflow-x: hidden;
-    background: #0d0014;
-    color: white;
-    font-family: 'Tajawal', sans-serif;
+    width: 100%; min-height: 100%;
+    overflow-x: hidden; background: #0d0014;
+    color: white; font-family: 'Tajawal', sans-serif;
     scroll-behavior: smooth;
   }
 
-  /* ── شاشة البداية ── */
+  /* ══════════════════════════════
+     ── شاشة القفل ──
+  ══════════════════════════════ */
+  .lock-screen {
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse at 50% 60%, #1e003a 0%, #000 100%);
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    gap: 20px; z-index: 200; padding: 32px 24px;
+    transition: opacity 0.8s ease, visibility 0.8s;
+  }
+  .lock-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+  .lock-icon { font-size: clamp(48px, 14vw, 80px); animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+
+  .lock-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 6vw, 36px);
+    background: linear-gradient(135deg, #e9d5ff, #f9a8d4, #c4b5fd);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    text-align: center; line-height: 1.3;
+  }
+  .lock-subtitle {
+    font-size: clamp(13px, 3.5vw, 16px);
+    color: rgba(196,181,253,0.6); text-align: center; line-height: 1.6;
+  }
+
+  /* التايمر في شاشة القفل */
+  .countdown-wrap {
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    background: rgba(80,0,120,0.3);
+    border: 1px solid rgba(196,181,253,0.2);
+    border-radius: 20px; padding: 18px 28px;
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    width: 100%; max-width: 340px;
+  }
+  .countdown-label {
+    font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--rose); opacity: 0.8;
+  }
+  .countdown-boxes { display: flex; gap: 10px; align-items: center; justify-content: center; }
+  .countdown-box { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .countdown-num {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 8vw, 44px); font-weight: 700;
+    background: linear-gradient(135deg, #e9d5ff, #f9a8d4);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    line-height: 1; min-width: clamp(44px, 12vw, 60px); text-align: center;
+  }
+  .countdown-unit { font-size: 10px; letter-spacing: 2px; color: rgba(196,181,253,0.6); text-transform: uppercase; }
+  .countdown-sep { font-size: clamp(22px, 6vw, 34px); color: rgba(196,181,253,0.3); margin-bottom: 14px; font-weight: 300; }
+  .countdown-done {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(16px, 4.5vw, 22px);
+    color: var(--rose); text-align: center;
+    animation: shimmer 2s ease-in-out infinite alternate;
+  }
+  @keyframes shimmer { from{filter:brightness(1)} to{filter:brightness(1.4)} }
+
+  /* زرار الدخول (يظهر لما التايمر يخلص) */
+  .unlock-btn {
+    padding: 16px 44px;
+    font-size: clamp(15px, 4vw, 19px);
+    font-family: 'Tajawal', sans-serif; font-weight: 700;
+    background: linear-gradient(135deg, var(--violet), #9333ea);
+    border: none; border-radius: 50px; color: white; cursor: pointer;
+    box-shadow: 0 0 30px rgba(124,58,237,0.6);
+    transition: transform 0.15s; -webkit-tap-highlight-color: transparent;
+    display: none; /* مخفي لحد ما التايمر يخلص */
+  }
+  .unlock-btn.visible { display: block; }
+  .unlock-btn:active { transform: scale(0.96); }
+
+  /* زرار الكلمة السر المخفي */
+  .secret-trigger {
+    position: fixed; bottom: 16px; left: 16px;
+    width: 28px; height: 28px;
+    background: transparent; border: none;
+    cursor: pointer; z-index: 210;
+    opacity: 0; /* مش واضح خالص */
+  }
+
+  /* modal كلمة السر */
+  .password-modal {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 300; padding: 24px;
+    opacity: 0; visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+  }
+  .password-modal.open { opacity: 1; visibility: visible; }
+
+  .password-box {
+    background: rgba(30,0,55,0.95);
+    border: 1px solid rgba(196,181,253,0.25);
+    border-radius: 20px; padding: 28px 24px;
+    width: 100%; max-width: 300px;
+    display: flex; flex-direction: column; align-items: center; gap: 16px;
+    backdrop-filter: blur(20px);
+  }
+  .password-box p {
+    font-size: 15px; color: rgba(196,181,253,0.8); text-align: center;
+  }
+  .password-input {
+    width: 100%; padding: 12px 16px;
+    background: rgba(80,0,120,0.3);
+    border: 1px solid rgba(196,181,253,0.2);
+    border-radius: 12px; color: white;
+    font-family: 'Tajawal', sans-serif; font-size: 16px;
+    text-align: center; outline: none;
+    transition: border-color 0.2s;
+  }
+  .password-input:focus { border-color: rgba(196,181,253,0.5); }
+  .password-input.wrong { border-color: var(--rose); animation: shake 0.3s ease; }
+  @keyframes shake {
+    0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)}
+  }
+  .password-submit {
+    width: 100%; padding: 12px;
+    background: linear-gradient(135deg, var(--violet), #9333ea);
+    border: none; border-radius: 12px;
+    color: white; font-family: 'Tajawal', sans-serif;
+    font-size: 15px; font-weight: 700; cursor: pointer;
+    transition: transform 0.15s; -webkit-tap-highlight-color: transparent;
+  }
+  .password-submit:active { transform: scale(0.97); }
+  .password-cancel {
+    background: none; border: none; color: rgba(196,181,253,0.4);
+    font-size: 13px; cursor: pointer; font-family: 'Tajawal', sans-serif;
+  }
+
+  /* ══════════════════════════════
+     ── شاشة البداية (بعد الدخول) ──
+  ══════════════════════════════ */
   .start-screen {
     position: fixed; inset: 0;
     background: radial-gradient(ellipse at 50% 60%, #1e003a 0%, #000 100%);
     display: flex; flex-direction: column;
     justify-content: center; align-items: center;
-    gap: 22px; z-index: 100;
+    gap: 22px; z-index: 100; padding: 32px 24px;
     transition: opacity 0.8s ease, visibility 0.8s;
-    padding: 32px 24px;
   }
   .start-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 
   .start-title {
     font-family: 'Playfair Display', serif;
-    font-size: clamp(28px, 8vw, 52px);
-    letter-spacing: 2px;
+    font-size: clamp(28px, 8vw, 52px); letter-spacing: 2px;
     background: linear-gradient(135deg, #e9d5ff, #f9a8d4, #c4b5fd);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    text-align: center;
-    animation: shimmer 3s ease-in-out infinite alternate;
+    text-align: center; animation: shimmer 3s ease-in-out infinite alternate;
   }
-  @keyframes shimmer {
-    from { filter: brightness(1); } to { filter: brightness(1.35); }
-  }
-
-  .start-subtitle {
-    font-size: clamp(13px, 3.5vw, 17px);
-    color: var(--lavender); opacity: 0.65; letter-spacing: 1px;
-  }
-
-  /* ── التايمر ── */
-  .countdown-wrap {
-    display: flex; flex-direction: column; align-items: center; gap: 10px;
-    background: rgba(80,0,120,0.3);
-    border: 1px solid rgba(196,181,253,0.2);
-    border-radius: 20px;
-    padding: 18px 28px;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    width: 100%; max-width: 340px;
-  }
-
-  .countdown-label {
-    font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
-    color: var(--rose); opacity: 0.8;
-  }
-
-  .countdown-boxes {
-    display: flex; gap: 10px; align-items: center; justify-content: center;
-  }
-
-  .countdown-box {
-    display: flex; flex-direction: column; align-items: center; gap: 4px;
-  }
-
-  .countdown-num {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(28px, 8vw, 44px);
-    font-weight: 700;
-    background: linear-gradient(135deg, #e9d5ff, #f9a8d4);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    line-height: 1;
-    min-width: clamp(44px, 12vw, 60px);
-    text-align: center;
-  }
-
-  .countdown-unit {
-    font-size: 10px; letter-spacing: 2px;
-    color: rgba(196,181,253,0.6); text-transform: uppercase;
-  }
-
-  .countdown-sep {
-    font-size: clamp(22px, 6vw, 34px);
-    color: rgba(196,181,253,0.3);
-    margin-bottom: 14px;
-    font-weight: 300;
-  }
-
-  /* لما التايمر يخلص */
-  .countdown-done {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(18px, 5vw, 26px);
-    color: var(--rose);
-    text-align: center;
-    animation: shimmer 2s ease-in-out infinite alternate;
-  }
+  .start-subtitle { font-size: clamp(13px, 3.5vw, 17px); color: var(--lavender); opacity: 0.65; letter-spacing: 1px; }
 
   .start-btn {
     margin-top: 4px; padding: 16px 44px;
@@ -118,13 +183,12 @@
     font-family: 'Tajawal', sans-serif; font-weight: 700;
     background: linear-gradient(135deg, var(--violet), #9333ea);
     border: none; border-radius: 50px; color: white; cursor: pointer;
-    box-shadow: 0 0 30px rgba(124,58,237,0.6), 0 0 60px rgba(124,58,237,0.2);
+    box-shadow: 0 0 30px rgba(124,58,237,0.6);
     position: relative; overflow: hidden;
-    transition: transform 0.15s ease;
-    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.15s; -webkit-tap-highlight-color: transparent;
   }
   .start-btn::before {
-    content: ''; position: absolute; inset: 0;
+    content:''; position:absolute; inset:0;
     background: linear-gradient(135deg, rgba(255,255,255,0.18), transparent);
     border-radius: inherit;
   }
@@ -132,208 +196,68 @@
 
   /* ── نجوم ── */
   .stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
-  .star {
-    position: absolute; border-radius: 50%; background: white;
-    animation: twinkle var(--dur) ease-in-out infinite alternate; opacity: 0;
-  }
-  @keyframes twinkle {
-    0% { opacity: 0; transform: scale(0.5); }
-    100% { opacity: var(--max-op); transform: scale(1); }
-  }
+  .star { position: absolute; border-radius: 50%; background: white; animation: twinkle var(--dur) ease-in-out infinite alternate; opacity: 0; }
+  @keyframes twinkle { 0%{opacity:0;transform:scale(0.5)} 100%{opacity:var(--max-op);transform:scale(1)} }
 
-  /* ── خلفية صور ── */
+  /* ── خلفية ── */
   .bg-layer { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
-  .bg-layer img {
-    position: absolute; inset: 0; width: 100%; height: 100%;
-    object-fit: cover; filter: blur(12px) saturate(1.3);
-    opacity: 0; transition: opacity 2.5s ease; transform: scale(1.05);
-  }
+  .bg-layer img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(12px) saturate(1.3); opacity: 0; transition: opacity 2.5s ease; transform: scale(1.05); }
   .bg-layer img.active { opacity: 0.45; }
-
-  .bg-overlay {
-    position: fixed; inset: 0; z-index: 0;
-    background: radial-gradient(ellipse at 30% 40%, rgba(59,7,100,0.55) 0%, rgba(0,0,0,0.72) 100%);
-    pointer-events: none;
-  }
+  .bg-overlay { position: fixed; inset: 0; z-index: 0; background: radial-gradient(ellipse at 30% 40%, rgba(59,7,100,0.55) 0%, rgba(0,0,0,0.72) 100%); pointer-events: none; }
 
   /* ── محتوى ── */
-  .content {
-    position: relative; z-index: 1;
-    opacity: 0; transform: translateY(30px);
-    transition: opacity 1.2s ease, transform 1.2s ease;
-    padding-bottom: 80px;
-  }
+  .content { position: relative; z-index: 1; opacity: 0; transform: translateY(30px); transition: opacity 1.2s ease, transform 1.2s ease; padding-bottom: 80px; }
   .content.show { opacity: 1; transform: translateY(0); }
 
   /* ── Hero ── */
-  .hero {
-    min-height: 100svh;
-    display: flex; flex-direction: column;
-    justify-content: center; align-items: center;
-    padding: 40px 24px; text-align: center; gap: 20px;
-  }
+  .hero { min-height: 100svh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px 24px; text-align: center; gap: 20px; }
   .hero-emoji { font-size: clamp(44px, 13vw, 78px); animation: float 3s ease-in-out infinite; }
-  @keyframes float {
-    0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); }
-  }
-  .hero-title {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(34px, 11vw, 76px); line-height: 1.1;
-    background: linear-gradient(135deg, #e9d5ff 0%, #f9a8d4 50%, #c4b5fd 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  }
-  .hero-date {
-    font-size: clamp(12px, 3.5vw, 16px);
-    color: var(--lavender); letter-spacing: 3px; opacity: 0.6;
-  }
+  .hero-title { font-family: 'Playfair Display', serif; font-size: clamp(34px, 11vw, 76px); line-height: 1.1; background: linear-gradient(135deg, #e9d5ff 0%, #f9a8d4 50%, #c4b5fd 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero-date { font-size: clamp(12px, 3.5vw, 16px); color: var(--lavender); letter-spacing: 3px; opacity: 0.6; }
 
-  /* ── كارد الرسالة ── */
-  .card {
-    background: rgba(80,0,120,0.35);
-    border: 1px solid rgba(196,181,253,0.2);
-    border-radius: 24px;
-    padding: clamp(24px, 6vw, 48px);
-    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-    box-shadow: 0 8px 40px rgba(124,58,237,0.2), inset 0 1px 0 rgba(255,255,255,0.08);
-    max-width: 580px; margin: 0 20px 60px;
-  }
+  /* ── كارد ── */
+  .card { background: rgba(80,0,120,0.35); border: 1px solid rgba(196,181,253,0.2); border-radius: 24px; padding: clamp(24px, 6vw, 48px); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 8px 40px rgba(124,58,237,0.2), inset 0 1px 0 rgba(255,255,255,0.08); max-width: 580px; margin: 0 20px 60px; }
   @media (min-width: 620px) { .card { margin: 0 auto 60px; } }
+  .card-label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--rose); margin-bottom: 18px; opacity: 0.8; }
+  .typed-text { font-size: clamp(15px, 4.2vw, 19px); line-height: 1.95; color: #f3e8ff; font-weight: 300; min-height: 80px; }
+  .cursor { display: inline-block; width: 2px; height: 1.1em; background: var(--rose); margin-right: 2px; vertical-align: text-bottom; animation: blink 0.8s step-end infinite; }
+  @keyframes blink { 50%{opacity:0} }
 
-  .card-label {
-    font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
-    color: var(--rose); margin-bottom: 18px; opacity: 0.8;
-  }
-  .typed-text {
-    font-size: clamp(15px, 4.2vw, 19px); line-height: 1.95;
-    color: #f3e8ff; font-weight: 300; min-height: 80px;
-  }
-  .cursor {
-    display: inline-block; width: 2px; height: 1.1em;
-    background: var(--rose); margin-right: 2px;
-    vertical-align: text-bottom;
-    animation: blink 0.8s step-end infinite;
-  }
-  @keyframes blink { 50% { opacity: 0; } }
-
-  /* ── divider ── */
-  .divider {
-    width: 80px; height: 1px;
-    background: linear-gradient(90deg, transparent, var(--lavender), transparent);
-    margin: 0 auto 64px;
-  }
-
+  .divider { width: 80px; height: 1px; background: linear-gradient(90deg, transparent, var(--lavender), transparent); margin: 0 auto 64px; }
   .section-wrap { max-width: 700px; margin: 0 auto 72px; padding: 0 20px; }
-  .section-title {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(22px, 6.5vw, 34px);
-    color: var(--lavender); margin-bottom: 32px;
-    text-align: center; letter-spacing: 1px;
-  }
+  .section-title { font-family: 'Playfair Display', serif; font-size: clamp(22px, 6.5vw, 34px); color: var(--lavender); margin-bottom: 32px; text-align: center; letter-spacing: 1px; }
 
-  /* ── الجاليري ── */
-  .gallery-frame {
-    position: relative; border-radius: 24px; overflow: hidden;
-    background: rgba(40,0,70,0.5);
-    border: 1px solid rgba(196,181,253,0.18);
-    box-shadow: 0 16px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(196,181,253,0.1);
-    touch-action: pan-y; user-select: none; -webkit-user-select: none;
-  }
-  .gallery-track {
-    display: flex;
-    transition: transform 0.55s cubic-bezier(0.4,0,0.2,1);
-    will-change: transform;
-  }
+  /* ── جاليري ── */
+  .gallery-frame { position: relative; border-radius: 24px; overflow: hidden; background: rgba(40,0,70,0.5); border: 1px solid rgba(196,181,253,0.18); box-shadow: 0 16px 60px rgba(0,0,0,0.6); touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+  .gallery-track { display: flex; transition: transform 0.55s cubic-bezier(0.4,0,0.2,1); will-change: transform; }
   .gallery-slide { min-width: 100%; position: relative; aspect-ratio: 4/3; }
   @media (max-width: 480px) { .gallery-slide { aspect-ratio: 3/4; } }
-
-  .gallery-slide img {
-    width: 100%; height: 100%; object-fit: cover; display: block;
-    pointer-events: none; -webkit-user-drag: none;
-  }
-  .gallery-slide::after {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(to top, rgba(13,0,20,0.55) 0%, transparent 45%);
-  }
-  .gallery-caption {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    padding: 20px 22px 18px; z-index: 2;
-    display: flex; justify-content: space-between; align-items: flex-end;
-  }
-  .gallery-label {
-    font-size: clamp(13px,3.5vw,15px); color: rgba(255,255,255,0.8);
-    font-style: italic; font-family: 'Playfair Display', serif;
-  }
-  .gallery-counter {
-    font-size: 12px; letter-spacing: 2px; color: var(--lavender);
-    opacity: 0.7; font-style: normal; font-family: 'Tajawal', sans-serif;
-  }
-
-  .gallery-btn {
-    position: absolute; top: 50%; transform: translateY(-50%);
-    width: clamp(40px,10vw,50px); height: clamp(40px,10vw,50px);
-    border-radius: 50%; background: rgba(60,0,100,0.6);
-    border: 1px solid rgba(196,181,253,0.25);
-    backdrop-filter: blur(10px); color: white; font-size: 20px;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    z-index: 3; transition: background 0.2s, transform 0.15s;
-    -webkit-tap-highlight-color: transparent; line-height: 1;
-  }
+  .gallery-slide img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; -webkit-user-drag: none; }
+  .gallery-slide::after { content:''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(13,0,20,0.55) 0%, transparent 45%); }
+  .gallery-caption { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px 22px 18px; z-index: 2; display: flex; justify-content: space-between; align-items: flex-end; }
+  .gallery-label { font-size: clamp(13px,3.5vw,15px); color: rgba(255,255,255,0.8); font-style: italic; font-family: 'Playfair Display', serif; }
+  .gallery-counter { font-size: 12px; letter-spacing: 2px; color: var(--lavender); opacity: 0.7; font-style: normal; font-family: 'Tajawal', sans-serif; }
+  .gallery-btn { position: absolute; top: 50%; transform: translateY(-50%); width: clamp(40px,10vw,50px); height: clamp(40px,10vw,50px); border-radius: 50%; background: rgba(60,0,100,0.6); border: 1px solid rgba(196,181,253,0.25); backdrop-filter: blur(10px); color: white; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 3; transition: background 0.2s, transform 0.15s; -webkit-tap-highlight-color: transparent; line-height: 1; }
   .gallery-btn:active { background: rgba(124,58,237,0.7); transform: translateY(-50%) scale(0.9); }
   .gallery-btn.prev { right: 12px; }
   .gallery-btn.next { left: 12px; }
-
-  .gallery-dots {
-    display: flex; justify-content: center;
-    gap: 6px; margin-top: 18px; flex-wrap: wrap;
-  }
-  .gallery-dot {
-    height: 7px; width: 7px; border-radius: 4px;
-    background: rgba(196,181,253,0.3);
-    transition: background 0.3s, width 0.3s; cursor: pointer;
-  }
+  .gallery-dots { display: flex; justify-content: center; gap: 6px; margin-top: 18px; flex-wrap: wrap; }
+  .gallery-dot { height: 7px; width: 7px; border-radius: 4px; background: rgba(196,181,253,0.3); transition: background 0.3s, width 0.3s; cursor: pointer; }
   .gallery-dot.active { background: var(--lavender); width: 24px; }
 
   /* ── فيديوهات ── */
   .videos-wrap { max-width: 620px; margin: 0 auto 72px; padding: 0 20px; }
-  .video-wrap {
-    margin-bottom: 28px; border-radius: 22px; overflow: hidden;
-    box-shadow: 0 12px 50px rgba(0,0,0,0.55), 0 0 0 1px rgba(196,181,253,0.12);
-  }
+  .video-wrap { margin-bottom: 28px; border-radius: 22px; overflow: hidden; box-shadow: 0 12px 50px rgba(0,0,0,0.55), 0 0 0 1px rgba(196,181,253,0.12); }
   .video-wrap video { width: 100%; display: block; }
 
   /* ── شكر ── */
-  .thanks-section {
-    position: relative; padding: 88px 24px 110px;
-    text-align: center; overflow: hidden;
-  }
-  .thanks-section::before {
-    content: ''; position: absolute; inset: 0;
-    background: radial-gradient(ellipse at 50% 0%, rgba(124,58,237,0.22) 0%, transparent 65%);
-    pointer-events: none;
-  }
-  .thanks-section::after {
-    content: ''; position: absolute; top: 0; left: 8%; right: 8%; height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(196,181,253,0.4), transparent);
-  }
+  .thanks-section { position: relative; padding: 88px 24px 110px; text-align: center; overflow: hidden; }
+  .thanks-section::before { content:''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(124,58,237,0.22) 0%, transparent 65%); pointer-events: none; }
+  .thanks-section::after { content:''; position: absolute; top: 0; left: 8%; right: 8%; height: 1px; background: linear-gradient(90deg, transparent, rgba(196,181,253,0.4), transparent); }
   .thanks-emoji { font-size: clamp(38px,11vw,64px); margin-bottom: 24px; display: block; animation: float 4s ease-in-out infinite; }
-  .thanks-heading {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(26px,7.5vw,44px);
-    background: linear-gradient(135deg, #e9d5ff, #f9a8d4 60%, #c4b5fd);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    margin-bottom: 44px; line-height: 1.25;
-  }
-  .thanks-cards {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
-    gap: 16px; max-width: 700px; margin: 0 auto 52px; text-align: right;
-  }
-  .thanks-card {
-    background: rgba(60,0,100,0.35);
-    border: 1px solid rgba(196,181,253,0.18);
-    border-radius: 20px; padding: 24px 20px;
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    transition: border-color 0.3s, box-shadow 0.3s;
-  }
+  .thanks-heading { font-family: 'Playfair Display', serif; font-size: clamp(26px,7.5vw,44px); background: linear-gradient(135deg, #e9d5ff, #f9a8d4 60%, #c4b5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 44px; line-height: 1.25; }
+  .thanks-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 16px; max-width: 700px; margin: 0 auto 52px; text-align: right; }
+  .thanks-card { background: rgba(60,0,100,0.35); border: 1px solid rgba(196,181,253,0.18); border-radius: 20px; padding: 24px 20px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: border-color 0.3s, box-shadow 0.3s; }
   .thanks-card:hover { border-color: rgba(196,181,253,0.38); box-shadow: 0 0 28px rgba(124,58,237,0.22); }
   .thanks-card-emoji { font-size: 28px; margin-bottom: 12px; display: block; }
   .thanks-card-title { font-family: 'Playfair Display', serif; font-size: clamp(14px,3.5vw,17px); color: var(--lavender); margin-bottom: 8px; }
@@ -345,41 +269,18 @@
   /* ── جسيمات ── */
   .particles-container { position: fixed; inset: 0; pointer-events: none; z-index: 2; overflow: hidden; }
   .particle { position: absolute; bottom: -40px; animation: rise linear forwards; opacity: 0.7; }
-  @keyframes rise {
-    0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 0.7; }
-    100% { transform: translateY(-110vh) rotate(360deg) scale(0.4); opacity: 0; }
-  }
+  @keyframes rise { 0%{transform:translateY(0) rotate(0deg) scale(1);opacity:.7} 100%{transform:translateY(-110vh) rotate(360deg) scale(0.4);opacity:0} }
 
-  /* ── مؤشر خلفية ── */
-  .bg-dots {
-    position: fixed; bottom: 70px; left: 50%;
-    transform: translateX(-50%);
-    display: flex; gap: 8px; z-index: 5;
-  }
+  .bg-dots { position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 5; }
   .bg-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(196,181,253,0.3); transition: background 0.4s, transform 0.4s; }
   .bg-dot.on { background: var(--lavender); transform: scale(1.4); }
 
   /* ── زرار الأغنية ── */
-  .music-bar {
-    position: fixed; bottom: 0; left: 0; right: 0; height: 56px;
-    background: rgba(20,0,40,0.85);
-    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-    border-top: 1px solid rgba(196,181,253,0.15);
-    display: flex; align-items: center; justify-content: center;
-    gap: 14px; z-index: 50; padding: 0 20px;
-  }
+  .music-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 56px; background: rgba(20,0,40,0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-top: 1px solid rgba(196,181,253,0.15); display: flex; align-items: center; justify-content: center; gap: 14px; z-index: 50; padding: 0 20px; }
   .music-icon { font-size: 18px; }
   .music-label { font-size: 13px; color: rgba(196,181,253,0.7); font-family: 'Tajawal', sans-serif; letter-spacing: 1px; flex: 1; text-align: right; }
-  .music-toggle {
-    width: 40px; height: 40px; border-radius: 50%;
-    background: rgba(124,58,237,0.35);
-    border: 1px solid rgba(196,181,253,0.3);
-    color: white; font-size: 16px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: background 0.2s, transform 0.15s;
-    -webkit-tap-highlight-color: transparent; flex-shrink: 0;
-  }
-  .music-toggle:active { transform: scale(0.92); background: rgba(124,58,237,0.6); }
+  .music-toggle { width: 40px; height: 40px; border-radius: 50%; background: rgba(124,58,237,0.35); border: 1px solid rgba(196,181,253,0.3); color: white; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s, transform 0.15s; -webkit-tap-highlight-color: transparent; flex-shrink: 0; }
+  .music-toggle:active { transform: scale(0.92); }
   .music-toggle.paused { background: rgba(196,181,253,0.15); }
 </style>
 </head>
@@ -387,45 +288,54 @@
 
 <div class="stars" id="stars"></div>
 
-<!-- شاشة البداية -->
-<div class="start-screen" id="startScreen">
-  <p class="start-title">Happy Birthday<br>Jessie 💜</p>
-  <p class="start-subtitle">حاجات كتير مستنياكي جوة</p>
+<!-- ══ شاشة القفل ══ -->
+<div class="lock-screen" id="lockScreen">
+  <div class="lock-icon">🔒</div>
+  <p class="lock-title">لسه وقتها ما جاش<br>استنّي شوية 💜</p>
+  <p class="lock-subtitle">الموقع ده ليكِ وبس...<br>بس لما يحين الوقت</p>
 
-  <!-- التايمر -->
   <div class="countdown-wrap">
     <p class="countdown-label">باقي على يومك</p>
-    <div id="countdownDisplay">
+    <div id="lockCountdownDisplay">
       <div class="countdown-boxes">
-        <div class="countdown-box">
-          <span class="countdown-num" id="cdDays">00</span>
-          <span class="countdown-unit">يوم</span>
-        </div>
+        <div class="countdown-box"><span class="countdown-num" id="lcDays">00</span><span class="countdown-unit">يوم</span></div>
         <span class="countdown-sep">:</span>
-        <div class="countdown-box">
-          <span class="countdown-num" id="cdHours">00</span>
-          <span class="countdown-unit">ساعة</span>
-        </div>
+        <div class="countdown-box"><span class="countdown-num" id="lcHours">00</span><span class="countdown-unit">ساعة</span></div>
         <span class="countdown-sep">:</span>
-        <div class="countdown-box">
-          <span class="countdown-num" id="cdMins">00</span>
-          <span class="countdown-unit">دقيقة</span>
-        </div>
+        <div class="countdown-box"><span class="countdown-num" id="lcMins">00</span><span class="countdown-unit">دقيقة</span></div>
         <span class="countdown-sep">:</span>
-        <div class="countdown-box">
-          <span class="countdown-num" id="cdSecs">00</span>
-          <span class="countdown-unit">ثانية</span>
-        </div>
+        <div class="countdown-box"><span class="countdown-num" id="lcSecs">00</span><span class="countdown-unit">ثانية</span></div>
       </div>
     </div>
   </div>
 
+  <!-- يظهر لما التايمر يخلص -->
+  <button class="unlock-btn" id="unlockBtn" onclick="goToStartScreen()">افتحي هديتك 🎁</button>
+</div>
+
+<!-- زرار سري مخفي في الزاوية -->
+<button class="secret-trigger" id="secretTrigger" onclick="openPasswordModal()" aria-label="secret"></button>
+
+<!-- modal كلمة السر -->
+<div class="password-modal" id="passwordModal">
+  <div class="password-box">
+    <p>اكتب كلمة السر عشان تدخل للمعاينة 🔑</p>
+    <input type="password" class="password-input" id="passwordInput"
+           placeholder="كلمة السر"
+           onkeydown="if(event.key==='Enter') checkPassword()">
+    <button class="password-submit" onclick="checkPassword()">دخول</button>
+    <button class="password-cancel" onclick="closePasswordModal()">إلغاء</button>
+  </div>
+</div>
+
+<!-- شاشة البداية -->
+<div class="start-screen" id="startScreen" style="display:none;">
+  <p class="start-title">Happy Birthday<br>Jessie 💜</p>
+  <p class="start-subtitle">حاجات كتير مستنياكي جوة</p>
   <button class="start-btn" onclick="startExperience()">دوسي هنا🎁</button>
 </div>
 
-<audio id="music" loop>
-  <source src="music.mp3" type="audio/mpeg">
-</audio>
+<audio id="music" loop><source src="music.mp3" type="audio/mpeg"></audio>
 
 <div class="bg-layer" id="bgLayer">
   <img src="bg1.jpg" class="active" alt="">
@@ -438,7 +348,6 @@
 <div class="particles-container" id="particles"></div>
 
 <div class="content" id="mainContent">
-
   <section class="hero">
     <div class="hero-emoji">🎂</div>
     <h1 class="hero-title">Happy Birthday<br>Jessie</h1>
@@ -454,38 +363,27 @@
 
   <div class="section-wrap">
     <h2 class="section-title">زي مانتي ❤️</h2>
-
     <div class="gallery-frame" id="galleryFrame">
       <div class="gallery-track" id="galleryTrack">
-
-        <div class="gallery-slide">
-          <img src="bg1.jpg" alt="ذكرى 1">
-          <div class="gallery-caption">
-            <span class="gallery-label">لحظة مميزة ✨</span>
-            <span class="gallery-counter" id="gc">1 / 15</span>
-          </div>
-        </div>
-        <div class="gallery-slide"><img src="bg2.jpg" alt="ذكرى 2"><div class="gallery-caption"><span class="gallery-label">وقت جميل 🌸</span></div></div>
-        <div class="gallery-slide"><img src="bg3.jpg" alt="ذكرى 3"><div class="gallery-caption"><span class="gallery-label">ذكرى ما تتنسيش 💜</span></div></div>
-        <div class="gallery-slide"><img src="bg4.jpg" alt="ذكرى 4"><div class="gallery-caption"><span class="gallery-label">معاكِ بيفرق 🎀</span></div></div>
-        <div class="gallery-slide"><img src="g1.jpg" alt="ذكرى 5"><div class="gallery-caption"><span class="gallery-label">أجمل الأوقات 💫</span></div></div>
-        <div class="gallery-slide"><img src="g2.jpg" alt="ذكرى 6"><div class="gallery-caption"><span class="gallery-label">هنستناها تاني 🌷</span></div></div>
-        <div class="gallery-slide"><img src="g3.jpg" alt="ذكرى 7"><div class="gallery-caption"><span class="gallery-label">أيام زي دي 💖</span></div></div>
-        <div class="gallery-slide"><img src="g4.jpg" alt="ذكرى 8"><div class="gallery-caption"><span class="gallery-label">دايمًا في بالي 🌙</span></div></div>
-        <div class="gallery-slide"><img src="g5.jpg" alt="ذكرى 9"><div class="gallery-caption"><span class="gallery-label">بحبك يا جيسي 💜</span></div></div>
-        <div class="gallery-slide"><img src="g6.jpg" alt="ذكرى 10"><div class="gallery-caption"><span class="gallery-label">كل يوم أحلى 🎀</span></div></div>
-        <div class="gallery-slide"><img src="g7.jpg" alt="ذكرى 11"><div class="gallery-caption"><span class="gallery-label">ذكرياتنا مش بتخلص ✨</span></div></div>
-        <div class="gallery-slide"><img src="g8.jpg" alt="ذكرى 12"><div class="gallery-caption"><span class="gallery-label">سعيد بيكِ 🌸</span></div></div>
-        <div class="gallery-slide"><img src="g9.jpg" alt="ذكرى 13"><div class="gallery-caption"><span class="gallery-label">ما أجملك 💜</span></div></div>
-        <div class="gallery-slide"><img src="g10.jpg" alt="ذكرى 14"><div class="gallery-caption"><span class="gallery-label">معاكِ للأبد 💫</span></div></div>
-        <div class="gallery-slide"><img src="g11.jpg" alt="ذكرى 15"><div class="gallery-caption"><span class="gallery-label">نهاية البداية 🌷</span></div></div>
-
+        <div class="gallery-slide"><img src="bg1.jpg" alt="1"><div class="gallery-caption"><span class="gallery-label">لحظة مميزة ✨</span><span class="gallery-counter" id="gc">1 / 15</span></div></div>
+        <div class="gallery-slide"><img src="bg2.jpg" alt="2"><div class="gallery-caption"><span class="gallery-label">وقت جميل 🌸</span></div></div>
+        <div class="gallery-slide"><img src="bg3.jpg" alt="3"><div class="gallery-caption"><span class="gallery-label">ذكرى ما تتنسيش 💜</span></div></div>
+        <div class="gallery-slide"><img src="bg4.jpg" alt="4"><div class="gallery-caption"><span class="gallery-label">معاكِ بيفرق 🎀</span></div></div>
+        <div class="gallery-slide"><img src="g1.jpg" alt="5"><div class="gallery-caption"><span class="gallery-label">أجمل الأوقات 💫</span></div></div>
+        <div class="gallery-slide"><img src="g2.jpg" alt="6"><div class="gallery-caption"><span class="gallery-label">هنستناها تاني 🌷</span></div></div>
+        <div class="gallery-slide"><img src="g3.jpg" alt="7"><div class="gallery-caption"><span class="gallery-label">أيام زي دي 💖</span></div></div>
+        <div class="gallery-slide"><img src="g4.jpg" alt="8"><div class="gallery-caption"><span class="gallery-label">دايمًا في بالي 🌙</span></div></div>
+        <div class="gallery-slide"><img src="g5.jpg" alt="9"><div class="gallery-caption"><span class="gallery-label">بحبك يا جيسي 💜</span></div></div>
+        <div class="gallery-slide"><img src="g6.jpg" alt="10"><div class="gallery-caption"><span class="gallery-label">كل يوم أحلى 🎀</span></div></div>
+        <div class="gallery-slide"><img src="g7.jpg" alt="11"><div class="gallery-caption"><span class="gallery-label">ذكرياتنا مش بتخلص ✨</span></div></div>
+        <div class="gallery-slide"><img src="g8.jpg" alt="12"><div class="gallery-caption"><span class="gallery-label">سعيد بيكِ 🌸</span></div></div>
+        <div class="gallery-slide"><img src="g9.jpg" alt="13"><div class="gallery-caption"><span class="gallery-label">ما أجملك 💜</span></div></div>
+        <div class="gallery-slide"><img src="g10.jpg" alt="14"><div class="gallery-caption"><span class="gallery-label">معاكِ للأبد 💫</span></div></div>
+        <div class="gallery-slide"><img src="g11.jpg" alt="15"><div class="gallery-caption"><span class="gallery-label">نهاية البداية 🌷</span></div></div>
       </div>
-
-      <button class="gallery-btn prev" onclick="galleryMove('prev')" aria-label="السابق">&#8250;</button>
-      <button class="gallery-btn next" onclick="galleryMove('next')" aria-label="التالي">&#8249;</button>
+      <button class="gallery-btn prev" onclick="galleryMove('prev')">&#8250;</button>
+      <button class="gallery-btn next" onclick="galleryMove('next')">&#8249;</button>
     </div>
-
     <div class="gallery-dots" id="galleryDots"></div>
   </div>
 
@@ -493,46 +391,22 @@
 
   <div class="videos-wrap">
     <h2 class="section-title">فيديوهاتنا القديمة 🎥</h2>
-    <div class="video-wrap">
-      <video controls playsinline preload="metadata"><source src="video1.mp4" type="video/mp4"></video>
-    </div>
-    <div class="video-wrap">
-      <video controls playsinline preload="metadata"><source src="video2.mp4" type="video/mp4"></video>
-    </div>
+    <div class="video-wrap"><video controls playsinline preload="metadata"><source src="video1.mp4" type="video/mp4"></video></div>
+    <div class="video-wrap"><video controls playsinline preload="metadata"><source src="video2.mp4" type="video/mp4"></video></div>
   </div>
 
   <section class="thanks-section">
     <span class="thanks-emoji">💜</span>
     <h2 class="thanks-heading">شكراً على كل لحظة<br>عشناها مع بعض</h2>
     <div class="thanks-cards">
-      <div class="thanks-card">
-        <span class="thanks-card-emoji">🌱</span>
-        <p class="thanks-card-title">أول ما بقينا مع بعض 5-3-2024</p>
-        <p class="thanks-card-text">شكراً إنك دخلتِ حياتي وفضلتِ فيها... من أول يوم كنتِ مختلفة.</p>
-      </div>
-      <div class="thanks-card">
-        <span class="thanks-card-emoji">🌻</span>
-        <p class="thanks-card-title">أيامنا الصعبة</p>
-        <p class="thanks-card-text">كنتِ دايمًا موجودة لما احتاجتك... دي مش حاجة هنساها طول عمري.</p>
-      </div>
-      <div class="thanks-card">
-        <span class="thanks-card-emoji">✨</span>
-        <p class="thanks-card-title">اللحظات الحلوة</p>
-        <p class="thanks-card-text">كل ضحكة وكل موقف قضيناه مع بعض... خزنته جوايا كويس.</p>
-      </div>
-      <div class="thanks-card">
-        <span class="thanks-card-emoji">🌙</span>
-        <p class="thanks-card-title">اللي جاي</p>
-        <p class="thanks-card-text">مش قلقان على المستقبل طول ما انتِ فيه معايا زي مانتي.</p>
-      </div>
+      <div class="thanks-card"><span class="thanks-card-emoji">🌱</span><p class="thanks-card-title">أول ما بقينا مع بعض 5-3-2024</p><p class="thanks-card-text">شكراً إنك دخلتِ حياتي وفضلتِ فيها... من أول يوم كنتِ مختلفة.</p></div>
+      <div class="thanks-card"><span class="thanks-card-emoji">🌻</span><p class="thanks-card-title">أيامنا الصعبة</p><p class="thanks-card-text">كنتِ دايمًا موجودة لما احتاجتك... دي مش حاجة هنساها طول عمري.</p></div>
+      <div class="thanks-card"><span class="thanks-card-emoji">✨</span><p class="thanks-card-title">اللحظات الحلوة</p><p class="thanks-card-text">كل ضحكة وكل موقف قضيناه مع بعض... خزنته جوايا كويس.</p></div>
+      <div class="thanks-card"><span class="thanks-card-emoji">🌙</span><p class="thanks-card-title">اللي جاي</p><p class="thanks-card-text">مش قلقان على المستقبل طول ما انتِ فيه معايا زي مانتي.</p></div>
     </div>
-    <p class="thanks-closing">
-      كل دي فترات وكل دي ذكريات... وأنا <strong>ممتنن</strong> عليها كلها.<br>
-      سنة جديدة وانتِ أجمل وأسعد، وربنا يديكِ كل اللي بتتمنيه 💜
-    </p>
+    <p class="thanks-closing">كل دي فترات وكل دي ذكريات... وأنا <strong>ممتنن</strong> عليها كلها.<br>سنة جديدة وانتِ أجمل وأسعد، وربنا يديكِ كل اللي بتتمنيه 💜</p>
     <p class="thanks-sig">— دايمًا معاكِ 🌸</p>
   </section>
-
 </div>
 
 <div class="bg-dots" id="bgDots"></div>
@@ -540,41 +414,33 @@
 <div class="music-bar" id="musicBar" style="display:none;">
   <span class="music-icon">🎵</span>
   <span class="music-label">music.mp3</span>
-  <button class="music-toggle" id="musicToggle" onclick="toggleMusic()" aria-label="إيقاف/تشغيل">⏸</button>
+  <button class="music-toggle" id="musicToggle" onclick="toggleMusic()">⏸</button>
 </div>
 
 <script>
 /* ── نجوم ── */
 (function(){
-  const c = document.getElementById('stars');
+  const c=document.getElementById('stars');
   for(let i=0;i<100;i++){
-    const s = document.createElement('div'); s.className='star';
+    const s=document.createElement('div'); s.className='star';
     const sz=Math.random()*2.5+0.5;
     s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--dur:${2+Math.random()*4}s;--max-op:${0.3+Math.random()*0.7};animation-delay:${Math.random()*5}s;`;
     c.appendChild(s);
   }
 })();
 
-/* ── خلفية صور ── */
-const bgImgs = document.querySelectorAll('.bg-layer img');
-const bgWrap = document.getElementById('bgDots');
-let bgIdx = 0;
-bgImgs.forEach((_,i)=>{
-  const d=document.createElement('div');
-  d.className='bg-dot'+(i===0?' on':'');
-  bgWrap.appendChild(d);
-});
-const bgDotEls = bgWrap.querySelectorAll('.bg-dot');
-function nextBg(){
-  bgImgs[bgIdx].classList.remove('active'); bgDotEls[bgIdx].classList.remove('on');
-  bgIdx=(bgIdx+1)%bgImgs.length;
-  bgImgs[bgIdx].classList.add('active'); bgDotEls[bgIdx].classList.add('on');
-}
+/* ── خلفية ── */
+const bgImgs=document.querySelectorAll('.bg-layer img');
+const bgWrap=document.getElementById('bgDots');
+let bgIdx=0;
+bgImgs.forEach((_,i)=>{ const d=document.createElement('div'); d.className='bg-dot'+(i===0?' on':''); bgWrap.appendChild(d); });
+const bgDotEls=bgWrap.querySelectorAll('.bg-dot');
+function nextBg(){ bgImgs[bgIdx].classList.remove('active'); bgDotEls[bgIdx].classList.remove('on'); bgIdx=(bgIdx+1)%bgImgs.length; bgImgs[bgIdx].classList.add('active'); bgDotEls[bgIdx].classList.add('on'); }
 setInterval(nextBg,5000);
 
 /* ══════════════════════════════
    ── التايمر ──
-   الهدف: 2 مايو 2026 الساعة 00:00 بتوقيت القاهرة (UTC+3)
+   الهدف: 2 مايو 2026 الساعة 00:00 بتوقيت القاهرة
 ══════════════════════════════ */
 const TARGET = new Date('2026-05-02T00:00:00+03:00').getTime();
 const SECRET = 'jojo';
@@ -614,106 +480,94 @@ function updateLockCountdown(){
 
 updateLockCountdown();
 setInterval(updateLockCountdown,1000);
+
 function pad(n){ return String(n).padStart(2,'0'); }
 
-function updateCountdown(){
-  const now  = Date.now();
-  const diff = TARGET - now;
-
+function updateLockCountdown(){
+  const diff = TARGET - Date.now();
   if(diff <= 0){
-    // وصلنا اليوم!
-    document.getElementById('countdownDisplay').innerHTML =
+    /* التايمر خلص — اظهر زرار الدخول */
+    document.getElementById('lockCountdownDisplay').innerHTML =
       '<p class="countdown-done">🎂 عيد ميلادك النهارده يا جيسي! 💜</p>';
+    document.getElementById('unlockBtn').classList.add('visible');
     return;
   }
+  const days  = Math.floor(diff/(1000*60*60*24));
+  const hours = Math.floor((diff%(1000*60*60*24))/(1000*60*60));
+  const mins  = Math.floor((diff%(1000*60*60))/(1000*60));
+  const secs  = Math.floor((diff%(1000*60))/1000);
+  document.getElementById('lcDays').textContent  = pad(days);
+  document.getElementById('lcHours').textContent = pad(hours);
+  document.getElementById('lcMins').textContent  = pad(mins);
+  document.getElementById('lcSecs').textContent  = pad(secs);
+}
+updateLockCountdown();
+setInterval(updateLockCountdown,1000);
 
-  const days  = Math.floor(diff / (1000*60*60*24));
-  const hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
-  const mins  = Math.floor((diff % (1000*60*60))    / (1000*60));
-  const secs  = Math.floor((diff % (1000*60))        / 1000);
-
-  document.getElementById('cdDays').textContent  = pad(days);
-  document.getElementById('cdHours').textContent = pad(hours);
-  document.getElementById('cdMins').textContent  = pad(mins);
-  document.getElementById('cdSecs').textContent  = pad(secs);
+/* ── كلمة السر ── */
+function openPasswordModal(){
+  document.getElementById('passwordModal').classList.add('open');
+  setTimeout(()=>document.getElementById('passwordInput').focus(), 100);
+}
+function closePasswordModal(){
+  document.getElementById('passwordModal').classList.remove('open');
+  document.getElementById('passwordInput').value='';
+  document.getElementById('passwordInput').classList.remove('wrong');
+}
+function checkPassword(){
+  const val = document.getElementById('passwordInput').value.trim().toLowerCase();
+  if(val === SECRET){
+    closePasswordModal();
+    goToStartScreen();
+  } else {
+    const inp = document.getElementById('passwordInput');
+    inp.classList.add('wrong');
+    inp.value='';
+    setTimeout(()=>inp.classList.remove('wrong'), 400);
+  }
 }
 
-updateCountdown();
-setInterval(updateCountdown, 1000);
+/* ── الانتقال لشاشة البداية ── */
+function goToStartScreen(){
+  document.getElementById('lockScreen').classList.add('hidden');
+  const ss = document.getElementById('startScreen');
+  ss.style.display='flex';
+}
 
-/* ── الجاليري ── */
-const slides  = document.querySelectorAll('.gallery-slide');
-const track   = document.getElementById('galleryTrack');
-const gcEl    = document.getElementById('gc');
-const gDotsEl = document.getElementById('galleryDots');
-const frame   = document.getElementById('galleryFrame');
-const TOTAL   = slides.length;
-let gIdx=0, touchX0=0, touchY0=0, dragging=false;
-
-slides.forEach((_,i)=>{
-  const d=document.createElement('div');
-  d.className='gallery-dot'+(i===0?' active':'');
-  d.addEventListener('click',()=>goTo(i));
-  gDotsEl.appendChild(d);
-});
+/* ── جاليري ── */
+const slides=document.querySelectorAll('.gallery-slide');
+const track=document.getElementById('galleryTrack');
+const gcEl=document.getElementById('gc');
+const gDotsEl=document.getElementById('galleryDots');
+const frame=document.getElementById('galleryFrame');
+const TOTAL=slides.length;
+let gIdx=0,touchX0=0,touchY0=0,dragging=false;
+slides.forEach((_,i)=>{ const d=document.createElement('div'); d.className='gallery-dot'+(i===0?' active':''); d.addEventListener('click',()=>goTo(i)); gDotsEl.appendChild(d); });
 const gDots=gDotsEl.querySelectorAll('.gallery-dot');
-
-function goTo(n){
-  gIdx=((n%TOTAL)+TOTAL)%TOTAL;
-  track.style.transform=`translateX(${gIdx*100}%)`;
-  gDots.forEach((d,i)=>d.classList.toggle('active',i===gIdx));
-  if(gcEl) gcEl.textContent=`${gIdx+1} / ${TOTAL}`;
-}
-function galleryMove(dir){
-  if(dir==='prev') goTo(gIdx-1); else goTo(gIdx+1);
-}
-
-frame.addEventListener('touchstart',e=>{
-  touchX0=e.touches[0].clientX; touchY0=e.touches[0].clientY; dragging=true;
-},{passive:true});
-frame.addEventListener('touchend',e=>{
-  if(!dragging) return;
-  const dx=e.changedTouches[0].clientX-touchX0;
-  const dy=e.changedTouches[0].clientY-touchY0;
-  if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>40) galleryMove(dx>0?'prev':'next');
-  dragging=false;
-},{passive:true});
+function goTo(n){ gIdx=((n%TOTAL)+TOTAL)%TOTAL; track.style.transform=`translateX(${gIdx*100}%)`; gDots.forEach((d,i)=>d.classList.toggle('active',i===gIdx)); if(gcEl) gcEl.textContent=`${gIdx+1} / ${TOTAL}`; }
+function galleryMove(dir){ if(dir==='prev') goTo(gIdx-1); else goTo(gIdx+1); }
+frame.addEventListener('touchstart',e=>{ touchX0=e.touches[0].clientX; touchY0=e.touches[0].clientY; dragging=true; },{passive:true});
+frame.addEventListener('touchend',e=>{ if(!dragging) return; const dx=e.changedTouches[0].clientX-touchX0; const dy=e.changedTouches[0].clientY-touchY0; if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>40) galleryMove(dx>0?'prev':'next'); dragging=false; },{passive:true});
 
 /* ── typing ── */
 const msg="كل سنة وانتِ أجمل حاجة في حياتي 💜 وجودك فرّق معايا في كل حاجة... وأنا محظوظ إنك معايا دايمًا 🌸";
 let charIdx=0;
 const textEl=document.getElementById('typedText');
-function typeWriter(){
-  if(charIdx<msg.length){
-    textEl.innerHTML=msg.slice(0,charIdx+1)+'<span class="cursor"></span>';
-    charIdx++; setTimeout(typeWriter,55);
-  }
-}
+function typeWriter(){ if(charIdx<msg.length){ textEl.innerHTML=msg.slice(0,charIdx+1)+'<span class="cursor"></span>'; charIdx++; setTimeout(typeWriter,55); } }
 
 /* ── جسيمات ── */
 const emojis=['💜','🌸','✨','💫','🎀','🌷','💖'];
-function spawnParticle(){
-  const p=document.createElement('div'); p.className='particle';
-  p.textContent=emojis[Math.floor(Math.random()*emojis.length)];
-  const dur=5+Math.random()*6;
-  p.style.cssText=`left:${Math.random()*100}%;font-size:${14+Math.random()*14}px;animation-duration:${dur}s;animation-delay:${Math.random()*2}s;`;
-  document.getElementById('particles').appendChild(p);
-  setTimeout(()=>p.remove(),(dur+2)*1000);
-}
+function spawnParticle(){ const p=document.createElement('div'); p.className='particle'; p.textContent=emojis[Math.floor(Math.random()*emojis.length)]; const dur=5+Math.random()*6; p.style.cssText=`left:${Math.random()*100}%;font-size:${14+Math.random()*14}px;animation-duration:${dur}s;animation-delay:${Math.random()*2}s;`; document.getElementById('particles').appendChild(p); setTimeout(()=>p.remove(),(dur+2)*1000); }
 
 /* ── موسيقى ── */
 const musicEl=document.getElementById('music');
 const musicToggle=document.getElementById('musicToggle');
 let isPlaying=false;
-function toggleMusic(){
-  if(isPlaying){ musicEl.pause(); musicToggle.textContent='▶'; musicToggle.classList.add('paused'); }
-  else { musicEl.play().catch(()=>{}); musicToggle.textContent='⏸'; musicToggle.classList.remove('paused'); }
-  isPlaying=!isPlaying;
-}
+function toggleMusic(){ if(isPlaying){ musicEl.pause(); musicToggle.textContent='▶'; musicToggle.classList.add('paused'); } else { musicEl.play().catch(()=>{}); musicToggle.textContent='⏸'; musicToggle.classList.remove('paused'); } isPlaying=!isPlaying; }
 
 /* ── بدء التجربة ── */
 function startExperience(){
-  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('startScreen').style.display='none';
   musicEl.play().catch(()=>{}); isPlaying=true;
   document.getElementById('musicBar').style.display='flex';
   document.getElementById('mainContent').classList.add('show');
