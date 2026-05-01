@@ -540,8 +540,13 @@ const msg="انا مش عارف اوصف فيكي ايه او اكتب فيكي 
 I love you so much💕";
 let charIdx=0;
 const textEl=document.getElementById('typedText');
-function typeWriter(){ if(charIdx<msg.length){ textEl.innerHTML=msg.slice(0,charIdx+1)+'<span class="cursor"></span>'; charIdx++; setTimeout(typeWriter,55); } }
-
+function typeWriter(){
+  if(charIdx < msg.length){
+    textEl.innerHTML += msg[charIdx];
+    charIdx++;
+    setTimeout(typeWriter,55);
+  }
+}
 /* ── جسيمات ── */
 const emojis=['💜','🌸','✨','💫','🎀','🌷','💖'];
 function spawnParticle(){ const p=document.createElement('div'); p.className='particle'; p.textContent=emojis[Math.floor(Math.random()*emojis.length)]; const dur=5+Math.random()*6; p.style.cssText=`left:${Math.random()*100}%;font-size:${14+Math.random()*14}px;animation-duration:${dur}s;animation-delay:${Math.random()*2}s;`; document.getElementById('particles').appendChild(p); setTimeout(()=>p.remove(),(dur+2)*1000); }
