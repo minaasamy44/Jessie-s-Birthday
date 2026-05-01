@@ -452,6 +452,12 @@ function pad(n){ return String(n).padStart(2,'0'); }
 
 function updateLockCountdown(){
 
+  if(DEV_MODE){
+    document.getElementById('lockScreen').style.display = 'none';
+    goToStartScreen();
+    return;
+  }
+
   // 🔥 وضع التجربة (يدخلك على طول)
   if(DEV_MODE){
     goToStartScreen();
