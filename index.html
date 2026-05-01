@@ -418,9 +418,6 @@
 </div>
 
 <script>
- function hideSecretButton(){
-  document.getElementById('secretTrigger').style.display = 'none';
-}
 /* ── نجوم ── */
 (function(){
   const c=document.getElementById('stars');
@@ -452,16 +449,7 @@ function pad(n){ return String(n).padStart(2,'0'); }
 
 function updateLockCountdown(){
   const diff = TARGET - Date.now();
- if(diff <= 0){
-  document.getElementById('lockCountdownDisplay').innerHTML =
-    '<p class="countdown-done">🎂 عيد ميلادك النهارده يا جيسي! 💜</p>';
-
-  document.getElementById('unlockBtn').classList.add('visible');
-
-  hideSecretButton(); // 👈 مهم
-
-  return;
-}
+  if(diff <= 0){
     /* التايمر خلص — اظهر زرار الدخول */
     document.getElementById('lockCountdownDisplay').innerHTML =
       '<p class="countdown-done">🎂 عيد ميلادك النهارده يا جيسي! 💜</p>';
@@ -505,13 +493,6 @@ function checkPassword(){
 
 /* ── الانتقال لشاشة البداية ── */
 function goToStartScreen(){
-  document.getElementById('lockScreen').classList.add('hidden');
-
-  const ss = document.getElementById('startScreen');
-  ss.style.display='flex';
-
-  hideSecretButton(); // 👈 مهم
-}
   document.getElementById('lockScreen').classList.add('hidden');
   const ss = document.getElementById('startScreen');
   ss.style.display='flex';
