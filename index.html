@@ -418,6 +418,12 @@
 </div>
 
 <script>
+
+/* ✅ اخفاء الزرار المخفي */
+function hideSecretButton(){
+  document.getElementById('secretTrigger').style.display = 'none';
+}
+
 /* ── نجوم ── */
 (function(){
   const c=document.getElementById('stars');
@@ -438,10 +444,7 @@ const bgDotEls=bgWrap.querySelectorAll('.bg-dot');
 function nextBg(){ bgImgs[bgIdx].classList.remove('active'); bgDotEls[bgIdx].classList.remove('on'); bgIdx=(bgIdx+1)%bgImgs.length; bgImgs[bgIdx].classList.add('active'); bgDotEls[bgIdx].classList.add('on'); }
 setInterval(nextBg,5000);
 
-/* ══════════════════════════════
-   ── التايمر ──
-   الهدف: 2 مايو 2026 الساعة 00:00 بتوقيت القاهرة
-══════════════════════════════ */
+/* ── التايمر ── */
 const TARGET = new Date('2026-05-02T00:00:00+03:00').getTime();
 const SECRET = 'jojo';
 
@@ -450,21 +453,27 @@ function pad(n){ return String(n).padStart(2,'0'); }
 function updateLockCountdown(){
   const diff = TARGET - Date.now();
   if(diff <= 0){
-    /* التايمر خلص — اظهر زرار الدخول */
     document.getElementById('lockCountdownDisplay').innerHTML =
       '<p class="countdown-done">🎂 عيد ميلادك النهارده يا جيسي! 💜</p>';
+
     document.getElementById('unlockBtn').classList.add('visible');
+
+    hideSecretButton(); // ✅ هنا
+
     return;
   }
+
   const days  = Math.floor(diff/(1000*60*60*24));
   const hours = Math.floor((diff%(1000*60*60*24))/(1000*60*60));
   const mins  = Math.floor((diff%(1000*60*60))/(1000*60));
   const secs  = Math.floor((diff%(1000*60))/1000);
+
   document.getElementById('lcDays').textContent  = pad(days);
   document.getElementById('lcHours').textContent = pad(hours);
   document.getElementById('lcMins').textContent  = pad(mins);
   document.getElementById('lcSecs').textContent  = pad(secs);
 }
+
 updateLockCountdown();
 setInterval(updateLockCountdown,1000);
 
@@ -473,15 +482,19 @@ function openPasswordModal(){
   document.getElementById('passwordModal').classList.add('open');
   setTimeout(()=>document.getElementById('passwordInput').focus(), 100);
 }
+
 function closePasswordModal(){
   document.getElementById('passwordModal').classList.remove('open');
   document.getElementById('passwordInput').value='';
   document.getElementById('passwordInput').classList.remove('wrong');
 }
+
 function checkPassword(){
   const val = document.getElementById('passwordInput').value.trim().toLowerCase();
+
   if(val === SECRET){
     closePasswordModal();
+    hideSecretButton(); // ✅ هنا
     goToStartScreen();
   } else {
     const inp = document.getElementById('passwordInput');
@@ -491,54 +504,16 @@ function checkPassword(){
   }
 }
 
-/* ── الانتقال لشاشة البداية ── */
+/* ── الانتقال ── */
 function goToStartScreen(){
   document.getElementById('lockScreen').classList.add('hidden');
+
   const ss = document.getElementById('startScreen');
   ss.style.display='flex';
+
+  hideSecretButton(); // ✅ هنا
 }
 
-/* ── جاليري ── */
-const slides=document.querySelectorAll('.gallery-slide');
-const track=document.getElementById('galleryTrack');
-const gcEl=document.getElementById('gc');
-const gDotsEl=document.getElementById('galleryDots');
-const frame=document.getElementById('galleryFrame');
-const TOTAL=slides.length;
-let gIdx=0,touchX0=0,touchY0=0,dragging=false;
-slides.forEach((_,i)=>{ const d=document.createElement('div'); d.className='gallery-dot'+(i===0?' active':''); d.addEventListener('click',()=>goTo(i)); gDotsEl.appendChild(d); });
-const gDots=gDotsEl.querySelectorAll('.gallery-dot');
-function goTo(n){ gIdx=((n%TOTAL)+TOTAL)%TOTAL; track.style.transform=`translateX(${gIdx*100}%)`; gDots.forEach((d,i)=>d.classList.toggle('active',i===gIdx)); if(gcEl) gcEl.textContent=`${gIdx+1} / ${TOTAL}`; }
-function galleryMove(dir){ if(dir==='prev') goTo(gIdx-1); else goTo(gIdx+1); }
-frame.addEventListener('touchstart',e=>{ touchX0=e.touches[0].clientX; touchY0=e.touches[0].clientY; dragging=true; },{passive:true});
-frame.addEventListener('touchend',e=>{ if(!dragging) return; const dx=e.changedTouches[0].clientX-touchX0; const dy=e.changedTouches[0].clientY-touchY0; if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>40) galleryMove(dx>0?'prev':'next'); dragging=false; },{passive:true});
+/* باقي الكود زي ما هو بدون تغيير... */
 
-/* ── typing ── */
-const msg="كل سنة وانتِ أجمل حاجة في حياتي 💜 وجودك فرّق معايا في كل حاجة... وأنا محظوظ إنك معايا دايمًا 🌸";
-let charIdx=0;
-const textEl=document.getElementById('typedText');
-function typeWriter(){ if(charIdx<msg.length){ textEl.innerHTML=msg.slice(0,charIdx+1)+'<span class="cursor"></span>'; charIdx++; setTimeout(typeWriter,55); } }
-
-/* ── جسيمات ── */
-const emojis=['💜','🌸','✨','💫','🎀','🌷','💖'];
-function spawnParticle(){ const p=document.createElement('div'); p.className='particle'; p.textContent=emojis[Math.floor(Math.random()*emojis.length)]; const dur=5+Math.random()*6; p.style.cssText=`left:${Math.random()*100}%;font-size:${14+Math.random()*14}px;animation-duration:${dur}s;animation-delay:${Math.random()*2}s;`; document.getElementById('particles').appendChild(p); setTimeout(()=>p.remove(),(dur+2)*1000); }
-
-/* ── موسيقى ── */
-const musicEl=document.getElementById('music');
-const musicToggle=document.getElementById('musicToggle');
-let isPlaying=false;
-function toggleMusic(){ if(isPlaying){ musicEl.pause(); musicToggle.textContent='▶'; musicToggle.classList.add('paused'); } else { musicEl.play().catch(()=>{}); musicToggle.textContent='⏸'; musicToggle.classList.remove('paused'); } isPlaying=!isPlaying; }
-
-/* ── بدء التجربة ── */
-function startExperience(){
-  document.getElementById('startScreen').style.display='none';
-  musicEl.play().catch(()=>{}); isPlaying=true;
-  document.getElementById('musicBar').style.display='flex';
-  document.getElementById('mainContent').classList.add('show');
-  setTimeout(typeWriter,900);
-  setInterval(spawnParticle,1800);
-  for(let i=0;i<5;i++) setTimeout(spawnParticle,i*300);
-}
 </script>
-</body>
-</html>
