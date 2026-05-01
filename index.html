@@ -577,7 +577,43 @@ setInterval(nextBg,5000);
    الهدف: 2 مايو 2026 الساعة 00:00 بتوقيت القاهرة (UTC+3)
 ══════════════════════════════ */
 const TARGET = new Date('2026-05-02T00:00:00+03:00').getTime();
+const SECRET = 'jojo';
 
+// 👇 غير دي بس وانت مرتاح
+const DEV_MODE = true; // خليه true وانت بتجرب
+
+function pad(n){ return String(n).padStart(2,'0'); }
+
+function updateLockCountdown(){
+
+  // 🔥 وضع التجربة (يدخلك على طول)
+  if(DEV_MODE){
+    goToStartScreen();
+    return;
+  }
+
+  const diff = TARGET - Date.now();
+
+  if(diff <= 0){
+    document.getElementById('lockCountdownDisplay').innerHTML =
+      '<p class="countdown-done">🎂 عيد ميلادك النهارده يا جيسي! 💜</p>';
+    document.getElementById('unlockBtn').classList.add('visible');
+    return;
+  }
+
+  const days  = Math.floor(diff/(1000*60*60*24));
+  const hours = Math.floor((diff%(1000*60*60*24))/(1000*60*60));
+  const mins  = Math.floor((diff%(1000*60*60))/(1000*60));
+  const secs  = Math.floor((diff%(1000*60))/1000);
+
+  document.getElementById('lcDays').textContent  = pad(days);
+  document.getElementById('lcHours').textContent = pad(hours);
+  document.getElementById('lcMins').textContent  = pad(mins);
+  document.getElementById('lcSecs').textContent  = pad(secs);
+}
+
+updateLockCountdown();
+setInterval(updateLockCountdown,1000);
 function pad(n){ return String(n).padStart(2,'0'); }
 
 function updateCountdown(){
